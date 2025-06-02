@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import styles from '../utils/maquinasStyles';
 
 const API = "http://192.168.0.20:3000/api/maquinas";
 
@@ -42,41 +43,3 @@ export default function MaquinasScreen() {
     />
   );
 }
-const styles = StyleSheet.create({
-  loaderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#E6F2E6',
-  },
-  container: {
-    padding: 16,
-    backgroundColor: '#E6F2E6',
-    flexGrow: 1,
-  },
-  card: {
-    backgroundColor: 'transparent', // sin color de fondo
-    borderWidth: 1,
-    borderColor: 'black', // borde negro
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 15,
-    // Sombra para Android:
-    elevation: 6,
-    // Sombra para iOS:
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  title: {
-    color: '#2E8B57', // verde para el título
-    fontSize: 22,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  detail: {
-    color: '#000', // texto negro o gris oscuro para detalles
-    fontSize: 16,
-    lineHeight: 22,
-  },
-});
