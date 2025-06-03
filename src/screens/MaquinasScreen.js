@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Image } from 'react-native';
 import styles from '../utils/maquinasStyles';
 
-const API = "http://192.168.0.20:3000/api/maquinas";
+const API = "http://192.168.0.19:3000/api/maquinas";
 
 export default function MaquinasScreen() {
   const [maquinas, setMaquinas] = useState([]);
@@ -36,6 +36,15 @@ export default function MaquinasScreen() {
       contentContainerStyle={styles.container}
       renderItem={({ item }) => (
         <View style={styles.card}>
+          {item.ImagenUrl ? (
+            <Image
+              source={{ uri: item.ImagenUrl }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          ) : (
+            <Text style={styles.noImageText}>Imagen no disponible</Text>
+          )}
           <Text style={styles.title}>{item.Nombre}</Text>
           <Text style={styles.detail}>Descripción: {item.Descripcion || 'N/A'}</Text>
         </View>

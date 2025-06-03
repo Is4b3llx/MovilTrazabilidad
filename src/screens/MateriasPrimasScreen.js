@@ -3,7 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, TextInput, M
 import { MaterialIcons } from '@expo/vector-icons';
 import styles from '../utils/materiasStyles';
 
-const API = "http://192.168.0.20:3000/api/materia-prima";
+const API = "http://192.168.0.19:3000/api/materia-prima";
 
 export default function MateriasPrimasScreen({ navigation }) {
   const [materias, setMaterias] = useState([]);

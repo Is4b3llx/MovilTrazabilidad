@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import styles from '../utils/procesosStyles';
 
-const API = "http://192.168.0.20:3000/api/procesos"; // Ajusta la IP si cambia
+const API = "http://192.168.0.19:3000/api/procesos"; // Ajusta la IP si cambia
 
 export default function ProcesosScreen() {
   const [procesos, setProcesos] = useState([]);

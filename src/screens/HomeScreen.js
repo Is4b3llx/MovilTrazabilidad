@@ -19,7 +19,7 @@ export default function HomeScreen({ navigation }) {
       title: "Ver Lotes",
       description: "Revisa los lotes en proceso",
       icon: "format-list-bulleted",
-      color: "#ef4444",
+      color: "#059669",
       route: "Lotes" // ← Aquí se dirige a LotesScreen
     },
     {
@@ -27,7 +27,7 @@ export default function HomeScreen({ navigation }) {
       title: "Ver Máquinas",
       description: "Estado de equipos disponibles",
       icon: "precision-manufacturing",
-      color: "#3b82f6",
+      color: "#059669",
       route: "Maquinas" // Ruta original
     }
   ];

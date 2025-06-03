@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, TextInput, Button } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TextInput, Button, TouchableOpacity, Platform } from 'react-native';
 import styles from '../utils/lotesStyles';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 
-const API = "http://192.168.0.20:3000/api/lote"; // Ajusta la IP si cambia
+const API = "http://192.168.0.19:3000/api/lote";
+const API_MATERIAS = "http://192.168.0.19:3000/api/materia-prima"; // Ajusta la IP si cambia
 
 export default function LotesScreen() {
   const [lotes, setLotes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Estado para el formulario
+  // Formulario
   const [nombre, setNombre] = useState('');
-  const [estado, setEstado] = useState('');
+  const [estado, setEstado] = useState('Pendiente');
+  const [fecha, setFecha] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [materiasPrimas, setMateriasPrimas] = useState([]);
+  const [materiaPrimaSeleccionada, setMateriaPrimaSeleccionada] = useState(null);
 
+  // Fetch lotes existentes
   useEffect(() => {
     fetch(API)
       .then(res => res.json())
@@ -25,13 +33,21 @@ export default function LotesScreen() {
       });
   }, []);
 
+  // Fetch materias primas
+  useEffect(() => {
+    fetch(API_MATERIAS)
+      .then(res => res.json())
+      .then(data => setMateriasPrimas(data))
+      .catch(err => console.error("Error al obtener materias primas:", err));
+  }, []);
+
   // POST
   const postLote = async () => {
     const nuevoLote = {
       Nombre: nombre,
-      FechaCreacion: new Date().toISOString(),
+      FechaCreacion: fecha.toISOString(),
       Estado: estado,
-      MateriasPrimas: [], // Inicialmente vacío
+      MateriasPrimas: materiaPrimaSeleccionada ? [materiaPrimaSeleccionada] : []
     };
 
     try {
@@ -47,7 +63,9 @@ export default function LotesScreen() {
         setLotes(prev => [...prev, data]);
         // Limpiar formulario
         setNombre('');
-        setEstado('');
+        setEstado('Pendiente');
+        setFecha(new Date());
+        setMateriaPrimaSeleccionada(null);
       } else {
         console.error('Error al crear lote:', response.status);
       }
@@ -71,6 +89,8 @@ export default function LotesScreen() {
       {/* Formulario de creación de lote */}
       <View style={{ padding: 16 }}>
         <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>Crear Nuevo Lote</Text>
+
+        {/* Nombre */}
         <TextInput
           placeholder="Nombre"
           value={nombre}
@@ -83,6 +103,54 @@ export default function LotesScreen() {
             padding: 8,
           }}
         />
+
+        {/* Materia Prima */}
+        <Text style={{ marginBottom: 4 }}>Seleccionar Materia Prima</Text>
+        <View style={{
+          borderWidth: 1,
+          borderColor: '#ccc',
+          borderRadius: 4,
+          marginBottom: 8,
+        }}>
+          <Picker
+            selectedValue={materiaPrimaSeleccionada}
+            onValueChange={(itemValue) => setMateriaPrimaSeleccionada(itemValue)}
+          >
+            <Picker.Item label="Seleccionar" value={null} />
+            {materiasPrimas.map(mp => (
+              <Picker.Item key={mp.IdMateriaPrima} label={mp.Nombre} value={mp} />
+            ))}
+          </Picker>
+        </View>
+
+        {/* Fecha de Creación */}
+        <TouchableOpacity
+          onPress={() => setShowDatePicker(true)}
+          style={{
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 4,
+            padding: 8,
+            marginBottom: 8,
+          }}
+        >
+          <Text>Fecha: {fecha.toLocaleDateString()}</Text>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={fecha}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+              if (selectedDate) {
+                setFecha(selectedDate);
+              }
+            }}
+          />
+        )}
+
+        {/* Estado */}
         <TextInput
           placeholder="Estado"
           value={estado}
@@ -95,6 +163,7 @@ export default function LotesScreen() {
             padding: 8,
           }}
         />
+
         <Button title="Crear Lote" onPress={postLote} color="#2E8B57" />
       </View>
 
@@ -115,7 +184,7 @@ export default function LotesScreen() {
                 <Text style={styles.subTitle}>Materias Primas:</Text>
                 {item.MateriasPrimas.map((mp) => (
                   <Text key={mp.IdMateriaPrima} style={styles.detail}>
-                    • {mp.Nombre} ({mp.Cantidad})
+                    • {mp.Nombre} ({mp.Cantidad || 0})
                   </Text>
                 ))}
               </View>
