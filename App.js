@@ -6,6 +6,9 @@ import MateriasPrimasScreen from './src/screens/MateriasPrimasScreen'; // ðŸ‘ˆðŸ
 import MaquinasScreen from './src/screens/MaquinasScreen';
 import ProcesosScreen from './src/screens/ProcesosScreen'; // ajusta la ruta si es distinta
 import LotesScreen from './src/screens/LotesScreen';
+import OperadorScreen from './src/screens/OperadorScreen';
+
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -17,7 +20,7 @@ export default function App() {
         <Stack.Screen name="Maquinas" component={MaquinasScreen} />
         <Stack.Screen name="Procesos" component={ProcesosScreen} />
         <Stack.Screen name="Lotes" component={LotesScreen} />
-
+  <Stack.Screen name="OperadorScreen" component={OperadorScreen} />
         <Stack.Screen 
   name="MateriasPrimas" 
   component={MateriasPrimasScreen} 

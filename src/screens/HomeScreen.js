@@ -57,7 +57,8 @@ export default function HomeScreen({ navigation }) {
       name: 'Certificados', 
       icon: 'file-certificate', 
       component: 'Certificados',
-      iconType: FontAwesome5
+      iconType: FontAwesome5,
+      route: "Certificado"
     },
     { 
       name: 'Reportes', 
@@ -98,19 +99,19 @@ export default function HomeScreen({ navigation }) {
 
           {/* Estadísticas */}
           <View style={styles.infoSection}>
-            <Text style={styles.sectionTitle}>Resumen del día</Text>
+            <Text style={styles.sectionTitle}>Reporte de estado de Lotes</Text>
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>12</Text>
-                <Text style={styles.statLabel}>Máquinas</Text>
+                <Text style={styles.statValue}>50 %</Text>
+                <Text style={styles.statLabel}>Certificados</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>5</Text>
-                <Text style={styles.statLabel}>Procesos</Text>
+                <Text style={styles.statValue}>33 %</Text>
+                <Text style={styles.statLabel}>Pendiente</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>98%</Text>
-                <Text style={styles.statLabel}>Eficiencia</Text>
+                <Text style={styles.statValue}>8%</Text>
+                <Text style={styles.statLabel}>No certificado</Text>
               </View>
             </View>
           </View>

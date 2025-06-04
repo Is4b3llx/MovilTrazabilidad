@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import styles from '../utils/procesosStyles';
 
 const API = "http://192.168.0.19:3000/api/procesos"; // Ajusta la IP si cambia
@@ -40,6 +40,23 @@ export default function ProcesosScreen() {
         <View style={styles.card}>
           <Text style={styles.title}>{item.Nombre}</Text>
           <Text style={styles.detail}>{item.Descripcion}</Text>
+          
+          {/* Botones añadidos */}
+          <View style={{ flexDirection: 'row', marginTop: 10 }}>
+            <TouchableOpacity 
+              style={[styles.button, { backgroundColor: '#2E8B57' }]}
+              onPress={() => console.log('Ver detalle', item.IdProceso)}
+            >
+              <Text style={styles.buttonText}>Ver detalle</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.button, { backgroundColor: '#3A86FF', marginLeft: 10 }]}
+              onPress={() => console.log('Descargar PDF', item.IdProceso)}
+            >
+              <Text style={styles.buttonText}>Descargar PDF</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     />

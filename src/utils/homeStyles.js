@@ -130,4 +130,5 @@ export default StyleSheet.create({
     fontWeight: '600',
     marginTop: 4,
   },
+  
 });

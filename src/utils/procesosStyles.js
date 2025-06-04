@@ -29,6 +29,15 @@ const styles = StyleSheet.create({
     marginTop: 6,
     color: '#555',                   // texto detalle gris oscuro
   },
+  button: {
+  padding: 8,
+  borderRadius: 5,
+},
+buttonText: {
+  color: 'white',
+  textAlign: 'center',
+  fontSize: 14,
+},
 });
 
 export default styles;

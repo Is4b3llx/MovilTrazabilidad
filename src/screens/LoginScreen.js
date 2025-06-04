@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 
 export default function LoginScreen({ navigation }) {
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    navigation.navigate('Home');
+    if (usuario === 'Isabella' && password === '123') {
+      navigation.navigate('Home');
+    } else if (usuario === 'Isa' && password === '123') {
+      navigation.navigate('OperadorScreen');
+    } else {
+      Alert.alert('Error', 'Usuario o contraseña incorrectos');
+    }
   };
 
   return (
@@ -45,6 +51,8 @@ export default function LoginScreen({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
+
+// ... (los estilos se mantienen igual)
 
 const styles = StyleSheet.create({
   container: {

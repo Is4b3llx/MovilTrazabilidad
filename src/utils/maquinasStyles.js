@@ -2,42 +2,100 @@ import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   container: {
-    padding: 10,
-  },
-  loaderContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  card: {
+    padding: 16,
     backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 8,
-    elevation: 2, // para Android shadow
-    shadowColor: '#000', // para iOS shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
-  image: {
-    width: '100%',
-    height: 150,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  noImageText: {
-    fontStyle: 'italic',
-    color: '#aaa',
-    marginBottom: 8,
-  },
-  title: {
+  titulo: {
+    fontSize: 24,
     fontWeight: 'bold',
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 4,
+    color: '#007c64',
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  detail: {
+  subtitulo: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginVertical: 10,
+  },
+  formContainer: {
+    marginBottom: 20,
+    padding: 15,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  input: {
+    height: 40,
+    borderColor: '#2E8B57',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+  },
+  imagePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#2E8B57',
+    borderRadius: 4,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+  },
+  imagePickerText: {
+    marginLeft: 10,
     color: '#666',
+  },
+  previewImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'contain',
+    marginBottom: 15,
+    borderRadius: 4,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    padding: 12,
+    borderRadius: 4,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  saveButton: {
+    backgroundColor: '#007c64',
+  },
+  buttonDisabled: {
+    backgroundColor: '#cccccc',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+  },
+  maquinaCard: {
+    width: '48%',
+    borderWidth: 1,
+    borderColor: '#2E8B57',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: '#fff',
+  },
+  maquinaImage: {
+    width: '100%',
+    height: 120,
+    marginBottom: 8,
+  },
+  maquinaNombre: {
+    textAlign: 'center',
+    fontWeight: '500',
+    color: '#333',
   },
 });
