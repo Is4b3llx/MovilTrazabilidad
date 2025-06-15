@@ -93,13 +93,7 @@ export default function HomeScreen({ navigation, route }) {
       route: "Certificado",
       roles: ['admin', 'operador']
     },
-    { 
-      name: 'Reportes', 
-      icon: 'assessment', 
-      component: 'Reportes',
-      iconType: MaterialIcons,
-      roles: ['admin'] // Solo admin
-    }
+  
   ];
 
   // Filtrar items de navegación según el rol

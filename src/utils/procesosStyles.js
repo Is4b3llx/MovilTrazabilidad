@@ -1,44 +1,37 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: '#E6F2E6',
-    flexGrow: 1,
+export default StyleSheet.create({
+  screenContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
   },
-  card: {
-    backgroundColor: '#fff',         // fondo blanco
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,                  // borde negro
-    borderColor: '#000',
-    elevation: 0,
-    shadowColor: 'transparent',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
   },
-  title: {
-    fontWeight: 'bold',
+  errorText: {
+    color: '#ef476f',
     fontSize: 18,
-    color: '#2E8B57',                // título verde
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  detail: {
-    fontSize: 14,
-    marginTop: 6,
-    color: '#555',                   // texto detalle gris oscuro
+  retryButton: {
+    backgroundColor: '#2E8B57',
+    padding: 12,
+    borderRadius: 6,
   },
-  button: {
-  padding: 8,
-  borderRadius: 5,
-},
-buttonText: {
-  color: 'white',
-  textAlign: 'center',
-  fontSize: 14,
-},
-crearButton: {
+  retryButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  crearButton: {
     backgroundColor: '#2E8B57',
     padding: 15,
     margin: 20,
@@ -50,6 +43,52 @@ crearButton: {
     fontWeight: 'bold',
     fontSize: 16,
   },
+  listContainer: {
+    padding: 16,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  detail: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  detailButton: {
+    backgroundColor: '#2E8B57',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '500',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#666',
+    fontSize: 16,
+    marginTop: 20,
+  },
 });
-
-export default styles;
