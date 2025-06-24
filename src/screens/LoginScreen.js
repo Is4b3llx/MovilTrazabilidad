@@ -17,6 +17,47 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const API_BASE_URL = 'http://192.168.0.20:3000/api'; // Ajusta esta URL
 const LOGIN_ENDPOINT = `${API_BASE_URL}/auth/login`;
 
+// Función para decodificar JWT (sin verificar firma)
+const decodeJWT = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Error al decodificar JWT:', error);
+    return null;
+  }
+};
+
+// Función para obtener el token de autenticación
+export const getAuthToken = async () => {
+  try {
+    return await AsyncStorage.getItem('token');
+  } catch (error) {
+    console.error('Error al obtener token:', error);
+    return null;
+  }
+};
+
+// Función para obtener información del usuario
+export const getUserInfo = async () => {
+  try {
+    const [cargo, userId, userName] = await Promise.all([
+      AsyncStorage.getItem('userCargo'),
+      AsyncStorage.getItem('userId'),
+      AsyncStorage.getItem('userName')
+    ]);
+    
+    return { cargo, userId, userName };
+  } catch (error) {
+    console.error('Error al obtener información del usuario:', error);
+    return { cargo: null, userId: null, userName: null };
+  }
+};
+
 export default function LoginScreen({ navigation }) {
   const [form, setForm] = useState({
     usuario: '',
@@ -76,11 +117,28 @@ export default function LoginScreen({ navigation }) {
       const data = await response.json();
       await AsyncStorage.setItem('token', data.token);
       
-      // Configuración para futuras peticiones
-      const authHeader = { 'Authorization': `Bearer ${data.token}` };
+      // Debug: ver qué está llegando del backend
+      console.log('Respuesta del backend:', JSON.stringify(data, null, 2));
       
-      // Redirección
-      navigation.replace('Home');
+      // Decodificar el token JWT para obtener la información del usuario
+      const decodedToken = decodeJWT(data.token);
+      console.log('Token decodificado:', decodedToken);
+      
+      if (decodedToken) {
+        // Guardar información del usuario desde el token
+        await AsyncStorage.setItem('userCargo', decodedToken.cargo);
+        await AsyncStorage.setItem('userId', decodedToken.id.toString());
+        await AsyncStorage.setItem('userName', decodedToken.nombre);
+        
+        console.log('Cargo del usuario:', decodedToken.cargo);
+        
+        // Redirección con el cargo del usuario
+        navigation.replace('Home', { userRole: decodedToken.cargo });
+      } else {
+        console.log('No se pudo decodificar el token');
+        // Redirección sin cargo (fallback)
+        navigation.replace('Home');
+      }
 
     } catch (error) {
       handleLoginError(error);

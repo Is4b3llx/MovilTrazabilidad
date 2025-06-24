@@ -378,7 +378,7 @@ export default function ProcesoScreen({ navigation }) {
 
                 <Text style={styles.variablesTitle}>Variables:</Text>
                 {maquina.variables.map((variable, indexVariable) => (
-                  <View key={indexVariable} style={styles.variableRow}>
+                  <View key={`${indexMaquina}-${indexVariable}-${Math.random()}`} style={styles.variableRow}>
                     <TextInput
                       style={[styles.variableInput, { flex: 2 }]}
                       value={variable.nombre}
@@ -517,7 +517,7 @@ export default function ProcesoScreen({ navigation }) {
                     </Text>
                     <View style={detailStyles.variablesContainer}>
                       {maquina.variables?.map((variable, index) => (
-                        <Text key={index} style={detailStyles.variableText}>
+                        <Text key={`${maquina.IdMaquina}-${index}-${Math.random()}`} style={detailStyles.variableText}>
                           • {variable.nombre} ({variable.min} – {variable.max})
                         </Text>
                       ))}

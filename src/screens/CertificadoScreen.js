@@ -1,169 +1,251 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal, Share, Alert } from 'react-native';
-import { captureRef } from 'react-native-view-shot';
-import * as FileSystem from 'expo-file-system';
-import QRCode from 'react-native-qrcode-svg';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const API_BASE = "http://192.168.0.20:3000/api";
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    padding: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#d32f2f',
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#007c64',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 6,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  listContainer: {
+    padding: 16,
+  },
+  certificadoCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e8f5e8',
+  },
+  certificadoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  certificadoTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginLeft: 8,
+  },
+  certificadoText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  certificadoLabel: {
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  certificadoButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+    gap: 8,
+  },
+  certificadoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  certificadoButtonPrimary: {
+    backgroundColor: '#007c64',
+  },
+  certificadoButtonSecondary: {
+    backgroundColor: '#5A6865',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: '#999',
+    marginBottom: 16,
+  },
+  refreshButton: {
+    backgroundColor: '#007c64',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 6,
+  },
+  refreshButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+});
 
 export default function CertificadosScreen() {
   const [certificados, setCertificados] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentQR, setCurrentQR] = useState('');
-  const [currentLote, setCurrentLote] = useState(null);
-  const [currentLog, setCurrentLog] = useState(null);
-  const viewRef = useRef();
+  const [error, setError] = useState(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchCertificados = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/lote`);
-        const data = await response.json();
-        const lotesCertificados = data.filter(lote => lote.Estado === "Certificado");
-        setCertificados(lotesCertificados);
-      } catch (err) {
-        Alert.alert("Error al cargar los certificados");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchCertificados();
   }, []);
 
-  const generatePDF = async (lote) => {
+  const fetchCertificados = async () => {
     try {
-      const [loteData, logData] = await Promise.all([
-        fetch(`${API_BASE}/lote/${lote.IdLote}`).then(res => res.json()),
-        fetch(`${API_BASE}/proceso-evaluacion/log/${lote.IdLote}`).then(res => res.json())
-      ]);
-
-      setCurrentLote(loteData);
-      setCurrentLog(logData);
-
-      setTimeout(async () => {
-        const uri = await captureRef(viewRef, {
-          format: 'png',
-          quality: 1
-        });
-
-        const pdfPath = `${FileSystem.documentDirectory}certificado_${lote.IdLote}.jpg`;
-        const base64Data = await FileSystem.readAsStringAsync(uri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-
-        await FileSystem.writeAsStringAsync(pdfPath, base64Data, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-
-        await Share.share({
-          url: pdfPath,
-          title: `Certificado Lote ${lote.IdLote}`,
-        });
-      }, 500);
-
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`${API_BASE}/lote`);
+      const data = await response.json();
+      const lotesCertificados = data.filter(lote => lote.Estado === "Certificado");
+      setCertificados(lotesCertificados);
     } catch (err) {
-      console.error("❌ Error al generar PDF:", err);
-      Alert.alert("Error al generar el certificado");
+      console.error("Error al cargar certificados:", err);
+      setError("Error al cargar los certificados");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const showQR = (lote) => {
-    setCurrentQR(`http://192.168.0.20:3000/api/certificado/${lote.IdLote}`);
-    setCurrentLote(lote);
-    setModalVisible(true);
+  const handleVerCertificado = (lote) => {
+    navigation.navigate('CertificadoDetalle', { idLote: lote.IdLote });
+  };
+
+  const handleGenerarQR = (lote) => {
+    navigation.navigate('CertificadoQR', { idLote: lote.IdLote });
   };
 
   const renderCertificado = ({ item }) => (
-    <View style={{
-      backgroundColor: "#fff", padding: 16, marginBottom: 12, borderRadius: 8,
-      shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 4, elevation: 2
-    }}>
-      <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Lote #{item.IdLote}</Text>
-      <Text>Nombre: {item.Nombre}</Text>
-      <Text>Fecha: {new Date(item.FechaCreacion).toLocaleDateString()}</Text>
+    <View style={styles.certificadoCard}>
+      <View style={styles.certificadoHeader}>
+        <MaterialIcons name="description" size={24} color="#007c64" />
+        <Text style={styles.certificadoTitle}>Lote #{item.IdLote}</Text>
+      </View>
+      
+      <Text style={styles.certificadoText}>
+        <Text style={styles.certificadoLabel}>Nombre:</Text> {item.Nombre}
+      </Text>
+      <Text style={styles.certificadoText}>
+        <Text style={styles.certificadoLabel}>Fecha de certificación:</Text> {new Date(item.FechaCreacion).toLocaleDateString()}
+      </Text>
 
-      <View style={{ flexDirection: 'row', marginTop: 10 }}>
+      <View style={styles.certificadoButtons}>
         <TouchableOpacity
-          onPress={() => generatePDF(item)}
-          style={{ flex: 1, backgroundColor: "#007c64", padding: 10, borderRadius: 6, marginRight: 4 }}
+          onPress={() => handleVerCertificado(item)}
+          style={[styles.certificadoButton, styles.certificadoButtonPrimary]}
         >
-          <Text style={{ color: "#fff", textAlign: 'center' }}>📄 PDF</Text>
+          <MaterialIcons name="description" size={20} color="#fff" />
+          <Text style={styles.buttonText}>📄 Certificado</Text>
         </TouchableOpacity>
+        
         <TouchableOpacity
-          onPress={() => showQR(item)}
-          style={{ flex: 1, backgroundColor: "#5A6865", padding: 10, borderRadius: 6, marginLeft: 4 }}
+          onPress={() => handleGenerarQR(item)}
+          style={[styles.certificadoButton, styles.certificadoButtonSecondary]}
         >
-          <Text style={{ color: "#fff", textAlign: 'center' }}>📲 QR</Text>
+          <MaterialIcons name="qr-code" size={20} color="#fff" />
+          <Text style={styles.buttonText}>📲 Generar QR</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 
-  return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 10 }}>📄 Certificados de Calidad</Text>
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#007c64" />
+        <Text style={styles.loadingText}>Cargando certificados...</Text>
+      </View>
+    );
+  }
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#007c64" style={{ marginTop: 30 }} />
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <MaterialIcons name="error" size={64} color="#d32f2f" />
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={fetchCertificados}>
+          <Text style={styles.retryButtonText}>Reintentar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>📄 Certificados de Calidad</Text>
+        <Text style={styles.subtitle}>Selecciona un lote certificado para ver su trazabilidad completa</Text>
+      </View>
+
+      {certificados.length === 0 ? (
+        <View style={styles.center}>
+          <MaterialIcons name="description" size={64} color="#ccc" />
+          <Text style={styles.noResultsText}>No hay lotes certificados</Text>
+          <TouchableOpacity style={styles.refreshButton} onPress={fetchCertificados}>
+            <Text style={styles.refreshButtonText}>Actualizar</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <FlatList
           data={certificados}
           keyExtractor={item => item.IdLote.toString()}
           renderItem={renderCertificado}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
         />
-      )}
-
-      {/* QR Modal */}
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={{
-          flex: 1, justifyContent: 'center', alignItems: 'center',
-          backgroundColor: 'rgba(0,0,0,0.5)'
-        }}>
-          <View style={{ backgroundColor: '#fff', padding: 20, borderRadius: 10, alignItems: 'center' }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 18 }}>QR - Lote #{currentLote?.IdLote}</Text>
-            <QRCode value={currentQR} size={200} />
-            <Text style={{ marginTop: 10, fontSize: 12 }}>{currentQR}</Text>
-            <TouchableOpacity onPress={() => setModalVisible(false)} style={{ marginTop: 20 }}>
-              <Text style={{ color: '#007c64' }}>Cerrar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Vista invisible del certificado */}
-      {currentLote && currentLog && (
-        <View ref={viewRef} style={{
-          position: 'absolute', top: -9999, left: -9999, width: 794, minHeight: 1120, backgroundColor: '#fff', padding: 24
-        }}>
-          <Text style={{ fontSize: 20, textAlign: 'center', fontWeight: 'bold' }}>CERTIFICADO DE CALIDAD</Text>
-          <Text style={{ textAlign: 'center' }}>Fecha: {new Date(currentLog.ResultadoFinal.FechaEvaluacion).toLocaleDateString()}</Text>
-          <Text style={{ marginTop: 10, fontWeight: 'bold' }}>Lote #{currentLote.IdLote}</Text>
-          <Text>Nombre: {currentLote.Nombre}</Text>
-          <Text>Fecha de creación: {new Date(currentLote.FechaCreacion).toLocaleDateString()}</Text>
-
-          <Text style={{ marginTop: 10, fontWeight: 'bold' }}>Materias Primas:</Text>
-          {currentLote.MateriasPrimas.map(mp => (
-            <Text key={mp.IdMateriaPrima}>- {mp.Nombre}: {mp.Cantidad}</Text>
-          ))}
-
-          <Text style={{ marginTop: 10, fontWeight: 'bold' }}>Proceso:</Text>
-          {currentLog.Maquinas.map(m => (
-            <View key={m.NumeroMaquina}>
-              <Text>{m.NumeroMaquina}. {m.NombreMaquina} {m.CumpleEstandar ? "✅" : "❌"}</Text>
-              {Object.entries(m.VariablesIngresadas).map(([k, v]) => (
-                <Text key={k}>  {k}: {v}</Text>
-              ))}
-            </View>
-          ))}
-
-          <Text style={{ marginTop: 10, fontWeight: 'bold' }}>Resultado:</Text>
-          <Text style={{ color: currentLog.ResultadoFinal.EstadoFinal === "Certificado" ? "green" : "red" }}>
-            {currentLog.ResultadoFinal.EstadoFinal}
-          </Text>
-          <Text>{currentLog.ResultadoFinal.Motivo}</Text>
-        </View>
       )}
     </View>
   );

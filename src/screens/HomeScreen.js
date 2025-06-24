@@ -1,13 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../utils/homeStyles';
 import { MaterialIcons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function HomeScreen({ navigation, route }) {
-  // Obtener el cargo del usuario (puede venir por props o async storage)
-  const userRole = route.params?.userRole || 'admin'; // Valor por defecto 'operador'
+  const [userRole, setUserRole] = useState('operador'); // Valor por defecto
+  const [loading, setLoading] = useState(true);
 
-  // Cards principales - se filtran según el cargo
+  // Obtener el cargo del usuario al cargar el componente
+  useEffect(() => {
+    const getUserRole = async () => {
+      try {
+        // Primero intentar obtener desde las props (si viene del login)
+        const roleFromProps = route.params?.userRole;
+        console.log('Cargo desde props:', roleFromProps);
+        
+        if (roleFromProps) {
+          setUserRole(roleFromProps);
+        } else {
+          // Si no viene por props, obtener desde AsyncStorage
+          const storedRole = await AsyncStorage.getItem('userCargo');
+          console.log('Cargo desde AsyncStorage:', storedRole);
+          if (storedRole) {
+            setUserRole(storedRole);
+          }
+        }
+      } catch (error) {
+        console.error('Error al obtener el cargo del usuario:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getUserRole();
+  }, [route.params?.userRole]);
+
+  // Debug: mostrar el cargo actual
+  useEffect(() => {
+    console.log('Cargo actual del usuario:', userRole);
+  }, [userRole]);
+
+  // Cards principales - se filtran según el cargo (exactamente como en la web)
   const allMainCards = [
     {
       id: 1,
@@ -16,7 +50,7 @@ export default function HomeScreen({ navigation, route }) {
       icon: "inventory",
       color: "#059669",
       route: "MateriasPrimas",
-      roles: ['admin', 'operador'] // Roles que pueden ver esta opción
+      roles: ['admin', 'operador', 'supervisor'] // Todos pueden ver
     },
     {
       id: 2,
@@ -25,7 +59,7 @@ export default function HomeScreen({ navigation, route }) {
       icon: "format-list-bulleted",
       color: "#059669",
       route: "Lotes",
-      roles: ['admin', 'operador']
+      roles: ['admin', 'operador', 'supervisor'] // Todos pueden ver
     },
     {
       id: 3,
@@ -43,7 +77,7 @@ export default function HomeScreen({ navigation, route }) {
       icon: "file-certificate",
       color: "#059669",
       route: "Certificados",
-      roles: ['admin', 'operador']
+      roles: ['admin', 'operador', 'supervisor'] // Todos pueden ver
     },
     {
       id: 5,
@@ -56,10 +90,12 @@ export default function HomeScreen({ navigation, route }) {
     }
   ];
 
-  // Filtrar cards según el rol del usuario
-  const mainCards = allMainCards.filter(card => 
-    card.roles.includes(userRole.toLowerCase())
-  );
+  // Filtrar cards según el rol del usuario (exactamente como en la web)
+  const mainCards = allMainCards.filter(card => {
+    const hasAccess = card.roles.includes(userRole);
+    console.log(`Card "${card.title}": usuario=${userRole}, roles=${card.roles}, acceso=${hasAccess}`);
+    return hasAccess;
+  });
 
   // Navegación inferior - también se filtra por cargo
   const allNavItems = [
@@ -69,7 +105,7 @@ export default function HomeScreen({ navigation, route }) {
       component: 'Home',
       iconType: MaterialIcons,
       active: true,
-      roles: ['admin', 'operador']
+      roles: ['admin', 'operador', 'supervisor'] // Todos pueden ver
     },
     { 
       name: 'Proceso', 
@@ -81,9 +117,9 @@ export default function HomeScreen({ navigation, route }) {
     { 
       name: 'Certificar Lote', 
       icon: 'bottle-tonic', 
-      component: 'Transformacion',
+      component: 'certificarlote',
       iconType: MaterialCommunityIcons,
-      roles: ['admin', 'operador']
+      roles: ['admin', 'operador', 'supervisor'] // Todos pueden ver
     },
     { 
       name: 'Certificados', 
@@ -91,15 +127,16 @@ export default function HomeScreen({ navigation, route }) {
       component: 'Certificados',
       iconType: FontAwesome5,
       route: "Certificado",
-      roles: ['admin', 'operador']
+      roles: ['admin', 'operador', 'supervisor'] // Todos pueden ver
     },
-  
   ];
 
-  // Filtrar items de navegación según el rol
-  const navItems = allNavItems.filter(item => 
-    item.roles.includes(userRole.toLowerCase())
-  ).map(item => ({
+  // Filtrar items de navegación según el rol (exactamente como en la web)
+  const navItems = allNavItems.filter(item => {
+    const hasAccess = item.roles.includes(userRole);
+    console.log(`Nav item "${item.name}": usuario=${userRole}, roles=${item.roles}, acceso=${hasAccess}`);
+    return hasAccess;
+  }).map(item => ({
     ...item,
     active: item.component === 'Home' // Mantener solo Home como activo
   }));
@@ -109,7 +146,18 @@ export default function HomeScreen({ navigation, route }) {
     'admin': 'Administrador',
     'operador': 'Operador',
     'supervisor': 'Supervisor'
-  }[userRole.toLowerCase()] || 'Usuario';
+  }[userRole] || 'Usuario';
+
+  // Si está cargando, mostrar un indicador simple
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text>Cargando...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>

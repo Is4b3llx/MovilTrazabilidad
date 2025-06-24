@@ -7,6 +7,8 @@ import MaquinasScreen from './src/screens/MaquinasScreen';
 import ProcesosScreen from './src/screens/ProcesosScreen'; // ajusta la ruta si es distinta
 import LotesScreen from './src/screens/LotesScreen';
 import CertificadoScreen from './src/screens/CertificadoScreen';
+import CertificadoDetalleScreen from './src/screens/CertificadoDetalleScreen';
+import CertificadoQRScreen from './src/screens/CertificadoQRScreen';
 import CertificarLoteScreen from './src/screens/CertificarLoteScreen';
 
 const Stack = createNativeStackNavigator();
@@ -21,14 +23,14 @@ export default function App() {
         <Stack.Screen name="Procesos" component={ProcesosScreen} />
         <Stack.Screen name="Lotes" component={LotesScreen} />
         <Stack.Screen name="Certificados" component={CertificadoScreen} />
-                <Stack.Screen name="Transformacion" component={CertificarLoteScreen} />
+        <Stack.Screen name="CertificadoDetalle" component={CertificadoDetalleScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="CertificadoQR" component={CertificadoQRScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="certificarlote" component={CertificarLoteScreen} />
         <Stack.Screen 
-        
-  name="MateriasPrimas" 
-  component={MateriasPrimasScreen} 
-  options={{ title: 'Materias Primas' }} 
-/>
-
+          name="MateriasPrimas" 
+          component={MateriasPrimasScreen} 
+          options={{ title: 'Materias Primas' }} 
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
