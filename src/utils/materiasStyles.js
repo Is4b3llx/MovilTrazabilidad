@@ -62,6 +62,72 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: '#555',
   },
+  listContent: {
+    paddingBottom: 20,
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#555',
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  // Modal
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#2E8B57',
+    textAlign: 'center',
+  },
+  label: {
+    marginTop: 10,
+    marginBottom: 5,
+    fontWeight: '500',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  button: {
+    borderRadius: 5,
+    padding: 10,
+    width: '48%',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#f44336',
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50',
+  },
 });
 
 export default styles;

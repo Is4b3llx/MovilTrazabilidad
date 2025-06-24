@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, TextInput, Modal, StyleSheet, Alert, Platform } from 'react-native';
+import {
+  View, Text, FlatList, ActivityIndicator, TouchableOpacity,
+  TextInput, Modal, Alert, Platform
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import styles from '../utils/materiasStyles';
 
 const API = "http://192.168.0.20:3000/api/materia-prima";
 
-export default function MateriasPrimasScreen({ navigation }) {
+export default function MateriasPrimasScreen() {
   const [materias, setMaterias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Estados para formulario
   const [nombre, setNombre] = useState('');
   const [fechaRecepcion, setFechaRecepcion] = useState('');
   const [proveedor, setProveedor] = useState('');
   const [cantidad, setCantidad] = useState('');
 
-  // Date Picker
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [fecha, setFecha] = useState(new Date());
 
@@ -40,7 +41,6 @@ export default function MateriasPrimasScreen({ navigation }) {
 
   useEffect(() => {
     fetchMaterias();
-
     const today = new Date();
     const formatted = today.toISOString().split('T')[0];
     setFecha(today);
@@ -99,7 +99,7 @@ export default function MateriasPrimasScreen({ navigation }) {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center' }}>
+      <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="#2E8B57" />
       </View>
     );
@@ -107,7 +107,6 @@ export default function MateriasPrimasScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Encabezado con título y botón */}
       <View style={styles.headerContainer}>
         <View style={styles.headerTitle}>
           <Text style={styles.headerText}>Materias Primas Registradas</Text>
@@ -122,7 +121,6 @@ export default function MateriasPrimasScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Modal para el formulario */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -132,21 +130,21 @@ export default function MateriasPrimasScreen({ navigation }) {
           resetForm();
         }}
       >
-        <View style={modalStyles.centeredView}>
-          <View style={modalStyles.modalView}>
-            <Text style={modalStyles.modalTitle}>Nueva Materia Prima</Text>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>Nueva Materia Prima</Text>
 
-            <Text style={modalStyles.label}>Nombre *</Text>
+            <Text style={styles.label}>Nombre *</Text>
             <TextInput
-              style={modalStyles.input}
+              style={styles.input}
               value={nombre}
               onChangeText={setNombre}
               placeholder="Nombre de la materia prima"
             />
 
-            <Text style={modalStyles.label}>Fecha de Recepción *</Text>
+            <Text style={styles.label}>Fecha de Recepción *</Text>
             <TouchableOpacity
-              style={modalStyles.input}
+              style={styles.input}
               onPress={() => setShowDatePicker(true)}
             >
               <Text>{fechaRecepcion || "Seleccionar fecha"}</Text>
@@ -160,50 +158,49 @@ export default function MateriasPrimasScreen({ navigation }) {
               />
             )}
 
-            <Text style={modalStyles.label}>Proveedor</Text>
+            <Text style={styles.label}>Proveedor</Text>
             <TextInput
-              style={modalStyles.input}
+              style={styles.input}
               value={proveedor}
               onChangeText={setProveedor}
               placeholder="Nombre del proveedor"
             />
 
-            <Text style={modalStyles.label}>Cantidad *</Text>
+            <Text style={styles.label}>Cantidad *</Text>
             <TextInput
-              style={modalStyles.input}
+              style={styles.input}
               value={cantidad}
               onChangeText={setCantidad}
               placeholder="Cantidad"
               keyboardType="numeric"
             />
 
-            <View style={modalStyles.buttonContainer}>
+            <View style={styles.buttonContainer}>
               <TouchableOpacity
-                style={[modalStyles.button, modalStyles.cancelButton]}
+                style={[styles.button, styles.cancelButton]}
                 onPress={() => {
                   setModalVisible(false);
                   resetForm();
                 }}
               >
-                <Text style={modalStyles.buttonText}>Cancelar</Text>
+                <Text style={styles.buttonText}>Cancelar</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[modalStyles.button, modalStyles.saveButton]}
+                style={[styles.button, styles.saveButton]}
                 onPress={handleAddMateria}
               >
-                <Text style={modalStyles.buttonText}>Guardar</Text>
+                <Text style={styles.buttonText}>Guardar</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
 
-      {/* Listado de materias primas */}
       <FlatList
         data={materias}
         keyExtractor={(item) => item.IdMateriaPrima.toString()}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.title}>{item.Nombre}</Text>
@@ -215,7 +212,7 @@ export default function MateriasPrimasScreen({ navigation }) {
         refreshing={refreshing}
         onRefresh={fetchMaterias}
         ListEmptyComponent={
-          <Text style={{ textAlign: 'center', marginTop: 20, color: '#555' }}>
+          <Text style={styles.emptyText}>
             No hay materias primas registradas
           </Text>
         }
@@ -223,67 +220,3 @@ export default function MateriasPrimasScreen({ navigation }) {
     </View>
   );
 }
-
-// Estilos específicos para el modal
-const modalStyles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalView: {
-    width: '90%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#2E8B57',
-    textAlign: 'center',
-  },
-  label: {
-    marginTop: 10,
-    marginBottom: 5,
-    fontWeight: '500',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 15,
-  },
-  button: {
-    borderRadius: 5,
-    padding: 10,
-    width: '48%',
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#f44336',
-  },
-  saveButton: {
-    backgroundColor: '#4CAF50',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});

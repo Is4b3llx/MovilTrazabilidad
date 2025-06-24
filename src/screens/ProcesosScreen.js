@@ -50,6 +50,8 @@ export default function ProcesoScreen({ navigation }) {
     try {
       const response = await fetch(API_MAQUINAS);
       const data = await response.json();
+      console.log('Máquinas cargadas:', data);
+      console.log('Estructura de la primera máquina:', data[0] ? Object.keys(data[0]) : 'No hay máquinas');
       setMaquinasDisponibles(data);
     } catch (err) {
       console.error("Error al obtener máquinas:", err);
@@ -79,14 +81,32 @@ export default function ProcesoScreen({ navigation }) {
       return;
     }
     
+    console.log('Agregando máquina:', maquina);
+    console.log('Campos de la máquina:', Object.keys(maquina));
+    
+    // Validar que la máquina tenga todos los campos requeridos
+    if (!maquina.Nombre || !maquina.ImagenUrl) {
+      console.error('Máquina con campos faltantes:', maquina);
+      Alert.alert("Error", "La máquina no tiene todos los campos requeridos");
+      return;
+    }
+    
+    const nuevaMaquina = { 
+      IdMaquina: maquina.IdMaquina,
+      Nombre: maquina.Nombre,
+      Imagen: maquina.ImagenUrl,
+      variables: [{ 
+        nombre: "", 
+        min: "0", 
+        max: "100"
+      }]
+    };
+    
+    console.log('Nueva máquina creada:', nuevaMaquina);
+    
     setMaquinasSeleccionadas([
       ...maquinasSeleccionadas,
-      { 
-        IdMaquina: maquina.IdMaquina,
-        Nombre: maquina.Nombre,
-        Imagen: maquina.Imagen,
-        variables: [] 
-      },
+      nuevaMaquina
     ]);
   };
 
@@ -108,7 +128,11 @@ export default function ProcesoScreen({ navigation }) {
 
   const agregarVariable = (indexMaquina) => {
     const nuevasMaquinas = [...maquinasSeleccionadas];
-    nuevasMaquinas[indexMaquina].variables.push({ nombre: "", min: "0", max: "0" });
+    nuevasMaquinas[indexMaquina].variables.push({ 
+      nombre: "", 
+      min: "0", 
+      max: "100"  // Cambio de "0" a "100" para valores más realistas
+    });
     setMaquinasSeleccionadas(nuevasMaquinas);
   };
 
@@ -118,58 +142,80 @@ export default function ProcesoScreen({ navigation }) {
     setMaquinasSeleccionadas(nuevasMaquinas);
   };
 
-  const validarProceso = () => {
+  const eliminarVariable = (indexMaquina, indexVariable) => {
+    const nuevasMaquinas = [...maquinasSeleccionadas];
+    if (nuevasMaquinas[indexMaquina].variables.length > 1) {
+      nuevasMaquinas[indexMaquina].variables.splice(indexVariable, 1);
+      setMaquinasSeleccionadas(nuevasMaquinas);
+    } else {
+      Alert.alert("Error", "Cada máquina debe tener al menos una variable");
+    }
+  };
+
+  const guardarProceso = async () => {
+    // Validaciones básicas
     if (!nombreProceso.trim()) {
-      setError("Debes ingresar un nombre para el proceso");
-      return false;
+      setError('Debes ingresar un nombre para el proceso');
+      return;
     }
-
+    
     if (maquinasSeleccionadas.length === 0) {
-      setError("Debes seleccionar al menos una máquina");
-      return false;
+      setError('Debes agregar al menos una máquina');
+      return;
     }
 
+    // Validar máquinas y variables
     for (const maquina of maquinasSeleccionadas) {
-      if (maquina.variables.length === 0) {
-        setError(`La máquina ${maquina.Nombre} no tiene variables`);
-        return false;
+      // Verificar que la máquina existe en las máquinas disponibles
+      const maquinaExiste = maquinasDisponibles.some(m => m.Nombre === maquina.Nombre);
+      if (!maquinaExiste) {
+        setError(`La máquina "${maquina.Nombre}" no existe en la base de datos`);
+        return;
       }
 
-      for (const variable of maquina.variables) {
-        if (!variable.nombre.trim()) {
-          setError("Todas las variables deben tener nombre");
-          return false;
-        }
+      // Verificar que la máquina tenga imagen
+      if (!maquina.Imagen || !maquina.Imagen.trim()) {
+        setError(`La máquina "${maquina.Nombre}" no tiene imagen`);
+        return;
+      }
 
+      if (!maquina.variables || maquina.variables.length === 0) {
+        setError(`La máquina "${maquina.Nombre}" no tiene variables`);
+        return;
+      }
+      
+      for (const variable of maquina.variables) {
+        if (!variable.nombre || !variable.nombre.trim()) {
+          setError(`La máquina "${maquina.Nombre}" tiene variables sin nombre`);
+          return;
+        }
+        
         const min = parseFloat(variable.min);
         const max = parseFloat(variable.max);
         
         if (isNaN(min) || isNaN(max)) {
-          setError("Los valores deben ser números");
-          return false;
+          setError(`Los valores de la variable "${variable.nombre}" deben ser números válidos`);
+          return;
         }
-
+        
         if (min > max) {
-          setError("El mínimo no puede ser mayor que el máximo");
-          return false;
+          setError(`En la variable "${variable.nombre}": el mínimo no puede ser mayor que el máximo`);
+          return;
         }
       }
     }
 
-    setError(null);
-    return true;
-  };
+    // Crear payload
+    const payload = {
+      nombre: nombreProceso.trim(),
+      maquinas: maquinasSeleccionadas.map((maquina, index) => {
+        // Validar que todos los campos estén presentes
+        if (!maquina.Nombre || !maquina.Imagen) {
+          console.error('Máquina con campos faltantes:', maquina);
+          throw new Error(`Máquina ${index + 1} tiene campos faltantes`);
+        }
 
-  const guardarProceso = async () => {
-    if (!validarProceso()) return;
-    
-    try {
-      setLoading(true);
-      
-      const payload = {
-        nombre: nombreProceso.trim(),
-        maquinas: maquinasSeleccionadas.map((maquina, index) => ({
-          IdMaquina: maquina.IdMaquina,
+        const maquinaPayload = {
           numero: index + 1,
           nombre: maquina.Nombre,
           imagen: maquina.Imagen,
@@ -178,8 +224,35 @@ export default function ProcesoScreen({ navigation }) {
             min: parseFloat(variable.min),
             max: parseFloat(variable.max)
           }))
-        }))
-      };
+        };
+
+        // Validar que el payload de la máquina esté completo
+        if (!maquinaPayload.numero || !maquinaPayload.nombre || !maquinaPayload.imagen || !maquinaPayload.variables) {
+          console.error('Payload de máquina incompleto:', maquinaPayload);
+          throw new Error(`Payload de máquina ${index + 1} incompleto`);
+        }
+
+        return maquinaPayload;
+      })
+    };
+
+    console.log('Enviando payload:', JSON.stringify(payload, null, 2));
+    console.log('Estructura del payload:');
+    console.log('- nombre:', payload.nombre);
+    console.log('- número de máquinas:', payload.maquinas.length);
+    payload.maquinas.forEach((maquina, index) => {
+      console.log(`- Máquina ${index + 1}:`, {
+        numero: maquina.numero,
+        nombre: maquina.nombre,
+        imagen: maquina.imagen,
+        variables: maquina.variables.length
+      });
+      console.log(`  - Variables:`, maquina.variables);
+    });
+
+    try {
+      setLoading(true);
+      setError(null);
 
       const response = await fetch(API, {
         method: 'POST',
@@ -189,20 +262,33 @@ export default function ProcesoScreen({ navigation }) {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Error al guardar");
+      console.log('Response status:', response.status);
 
-      Alert.alert("Éxito", "Proceso creado correctamente", [
-        { text: "OK", onPress: () => {
-          setCreandoProceso(false);
-          setNombreProceso("");
-          setMaquinasSeleccionadas([]);
-          fetchProcesos();
-        }}
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Error del servidor: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('Respuesta exitosa:', result);
+
+      Alert.alert('Éxito', 'Proceso creado correctamente', [
+        {
+          text: 'OK',
+          onPress: () => {
+            setCreandoProceso(false);
+            setNombreProceso('');
+            setMaquinasSeleccionadas([]);
+            setError(null);
+            fetchProcesos();
+          }
+        }
       ]);
-      
+
     } catch (error) {
-      console.error("Error al guardar:", error);
-      setError(error.message || "Error al guardar el proceso");
+      console.error('Error completo al guardar:', error);
+      setError(`Error al guardar el proceso: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -260,7 +346,7 @@ export default function ProcesoScreen({ navigation }) {
               onPress={() => agregarMaquina(maquina)}
             >
               <Image 
-                source={{ uri: maquina.Imagen }} 
+                source={{ uri: maquina.ImagenUrl }} 
                 style={styles.maquinaImage}
                 resizeMode="contain"
               />
@@ -313,6 +399,14 @@ export default function ProcesoScreen({ navigation }) {
                       placeholder="Máx"
                       keyboardType="numeric"
                     />
+                    {maquina.variables.length > 1 && (
+                      <TouchableOpacity
+                        style={styles.deleteVariableButton}
+                        onPress={() => eliminarVariable(indexMaquina, indexVariable)}
+                      >
+                        <Text style={styles.deleteVariableText}>❌</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 ))}
 
@@ -607,21 +701,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#2E8B57',
   },
   maquinaHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
   },
   selectedMaquinaImage: {
     width: 60,
     height: 60,
-    borderRadius: 4,
     marginRight: 12,
   },
   maquinaInfo: {
@@ -629,7 +718,8 @@ const styles = StyleSheet.create({
   },
   maquinaTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    color: '#2E8B57',
   },
   deleteButton: {
     padding: 8,
@@ -639,120 +729,132 @@ const styles = StyleSheet.create({
     color: '#ef476f',
   },
   variablesTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#444',
-    marginBottom: 8,
+    marginTop: 12,
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: '#333',
   },
   variableRow: {
     flexDirection: 'row',
-    marginBottom: 8,
-    gap: 8,
+    marginTop: 8,
   },
   variableInput: {
-    backgroundColor: '#f5f5f5',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 4,
-    padding: 8,
-    fontSize: 14,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 6,
+    marginRight: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
-  addVariableButton: {
-    marginTop: 8,
-    padding: 8,
+  deleteVariableButton: {
+    padding: 6,
+    justifyContent: 'center',
     alignItems: 'center',
   },
+  deleteVariableText: {
+    fontSize: 16,
+    color: '#ef476f',
+  },
+  addVariableButton: {
+    marginTop: 12,
+    alignSelf: 'flex-start',
+  },
   addVariableText: {
-    color: '#3A86FF',
+    color: '#2E8B57',
+    fontWeight: '600',
     fontSize: 14,
   },
   buttonGroup: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginVertical: 24,
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 8,
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
   },
   cancelButton: {
     backgroundColor: '#ef476f',
-    flex: 1,
-    marginRight: 8,
   },
   saveButton: {
     backgroundColor: '#2E8B57',
-    flex: 1,
-    marginLeft: 8,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });
 
 const detailStyles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
-    padding: 20,
+    padding: 16,
+    backgroundColor: '#fff',
   },
   header: {
-    marginBottom: 25,
+    marginBottom: 20,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#007c64',
-    marginBottom: 5,
+    color: '#2E8B57',
+    marginBottom: 4,
+    textAlign: 'center',
   },
   procesoTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: '#333',
+    textAlign: 'center',
   },
   procesoId: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    marginBottom: 10,
+    textAlign: 'center',
+    marginTop: 4,
   },
   maquinasContainer: {
-    marginBottom: 20,
+    marginTop: 10,
   },
   maquinaCard: {
-    backgroundColor: 'white',
+    backgroundColor: '#e6f2e6',
     borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    padding: 12,
+    marginBottom: 16,
   },
   maquinaImage: {
     width: '100%',
-    height: 150,
-    marginBottom: 10,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#eee',
+    height: 100,
+    marginBottom: 8,
   },
   maquinaTitle: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 8,
-    color: '#444',
+    color: '#2E8B57',
+    marginBottom: 6,
   },
   variablesContainer: {
-    marginLeft: 10,
+    marginTop: 6,
+    paddingLeft: 12,
   },
   variableText: {
     fontSize: 14,
-    color: '#555',
+    color: '#333',
     marginBottom: 4,
   },
   closeButton: {
-    marginTop: 30,
-    padding: 15,
-    backgroundColor: '#ddd',
-    borderRadius: 6,
+    backgroundColor: '#ef476f',
+    padding: 14,
+    borderRadius: 8,
     alignItems: 'center',
+    marginTop: 20,
   },
   closeButtonText: {
-    color: '#333',
-    fontWeight: '500',
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });
