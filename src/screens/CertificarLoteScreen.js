@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from 'react';
-<<<<<<< HEAD
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Alert, Modal, TextInput, ScrollView, Image } from 'react-native';
-=======
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet, RefreshControl, Alert, Modal, TextInput, ScrollView } from 'react-native';
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 
 // Endpoints API
-<<<<<<< HEAD
 const API_BASE = "http://10.26.13.160:3000/api";
-=======
-const API_BASE = "http://192.168.0.20:3000/api";
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
 const API_LOTES = `${API_BASE}/lote`;
 const API_PROCESO = `${API_BASE}/proceso-transformacion`;
 
@@ -232,7 +224,6 @@ export default function CertificarLoteScreen() {
 
   // Actualizar variable ingresada (como en la web)
   const handleActualizarVariable = (nombreVariable, valor) => {
-<<<<<<< HEAD
     // Guardar siempre como string
     setVariablesIngresadas({ ...variablesIngresadas, [nombreVariable]: valor });
 
@@ -243,18 +234,6 @@ export default function CertificarLoteScreen() {
       valor !== "" &&
       (!/^-?\d*\.?\d*$/.test(valor) || isNaN(num) || num < regla.ValorMin || num > regla.ValorMax);
 
-=======
-    const nuevoValor = parseFloat(valor);
-    const nuevaEntrada = { ...variablesIngresadas, [nombreVariable]: nuevoValor };
-
-    const regla = maquinaSeleccionada.Variables.find((v) => v.Nombre === nombreVariable);
-    const fueraDeRango =
-      isNaN(nuevoValor) ||
-      nuevoValor < regla.ValorMin ||
-      nuevoValor > regla.ValorMax;
-
-    setVariablesIngresadas(nuevaEntrada);
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
     setErrores({ ...errores, [nombreVariable]: fueraDeRango });
   };
 
@@ -483,17 +462,11 @@ export default function CertificarLoteScreen() {
                               >
                                 <View style={styles.maquinaImageContainer}>
                                   {maquina.Imagen ? (
-<<<<<<< HEAD
                                     <Image
                                       source={{ uri: maquina.Imagen }}
                                       style={{ width: 70, height: 70, borderRadius: 8 }}
                                       resizeMode="contain"
                                     />
-=======
-                                    <Text style={styles.maquinaImagePlaceholder}>
-                                      📷 Imagen
-                                    </Text>
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
                                   ) : (
                                     <Text style={styles.maquinaImagePlaceholder}>
                                       ⚙️ Máquina
@@ -600,18 +573,12 @@ export default function CertificarLoteScreen() {
               </TouchableOpacity>
             </View>
 
-<<<<<<< HEAD
             <ScrollView 
               style={styles.modalBody}
               keyboardShouldPersistTaps="handled"
             >
               {maquinaSeleccionada?.Variables?.map((variable, index) => (
                 <View key={`${maquinaSeleccionada.Numero}-${variable.Nombre}-${index}`} style={styles.variableInput}>
-=======
-            <ScrollView style={styles.modalBody}>
-              {maquinaSeleccionada?.Variables?.map((variable, index) => (
-                <View key={`${maquinaSeleccionada.Numero}-${variable.Nombre}-${index}-${Math.random()}`} style={styles.variableInput}>
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
                   <Text style={styles.variableLabel}>
                     {variable.Nombre} ({variable.ValorMin} – {variable.ValorMax})
                   </Text>
@@ -626,13 +593,10 @@ export default function CertificarLoteScreen() {
                     keyboardType="numeric"
                     value={variablesIngresadas[variable.Nombre]?.toString() || ""}
                     onChangeText={(text) => handleActualizarVariable(variable.Nombre, text)}
-<<<<<<< HEAD
                     autoCorrect={false}
                     spellCheck={false}
                     autoComplete="off"
                     textContentType="none"
-=======
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
                   />
                   {errores[variable.Nombre] && (
                     <Text style={styles.errorText}>Valor fuera de rango permitido.</Text>
