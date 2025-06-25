@@ -14,11 +14,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Configuración de la API
-<<<<<<< HEAD
 const API_BASE_URL = 'http://10.26.13.160:3000/api'; // Ajusta esta URL
-=======
-const API_BASE_URL = 'http://192.168.0.20:3000/api'; // Ajusta esta URL
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
 const LOGIN_ENDPOINT = `${API_BASE_URL}/auth/login`;
 
 // Función para decodificar JWT (sin verificar firma)
@@ -49,27 +45,15 @@ export const getAuthToken = async () => {
 // Función para obtener información del usuario
 export const getUserInfo = async () => {
   try {
-<<<<<<< HEAD
     const [userId, userName] = await Promise.all([
-=======
-    const [cargo, userId, userName] = await Promise.all([
-      AsyncStorage.getItem('userCargo'),
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
       AsyncStorage.getItem('userId'),
       AsyncStorage.getItem('userName')
     ]);
     
-<<<<<<< HEAD
     return { userId, userName };
   } catch (error) {
     console.error('Error al obtener información del usuario:', error);
     return { userId: null, userName: null };
-=======
-    return { cargo, userId, userName };
-  } catch (error) {
-    console.error('Error al obtener información del usuario:', error);
-    return { cargo: null, userId: null, userName: null };
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
   }
 };
 
@@ -140,7 +124,6 @@ export default function LoginScreen({ navigation }) {
       console.log('Token decodificado:', decodedToken);
       
       if (decodedToken) {
-<<<<<<< HEAD
         // Verificar que el usuario sea operador
         if (decodedToken.cargo && decodedToken.cargo.toLowerCase() !== 'operador') {
           Alert.alert('Acceso Denegado', 'Esta aplicación solo está disponible para operadores.');
@@ -158,21 +141,6 @@ export default function LoginScreen({ navigation }) {
       } else {
         console.log('No se pudo decodificar el token');
         Alert.alert('Error', 'Error al procesar la autenticación');
-=======
-        // Guardar información del usuario desde el token
-        await AsyncStorage.setItem('userCargo', decodedToken.cargo);
-        await AsyncStorage.setItem('userId', decodedToken.id.toString());
-        await AsyncStorage.setItem('userName', decodedToken.nombre);
-        
-        console.log('Cargo del usuario:', decodedToken.cargo);
-        
-        // Redirección con el cargo del usuario
-        navigation.replace('Home', { userRole: decodedToken.cargo });
-      } else {
-        console.log('No se pudo decodificar el token');
-        // Redirección sin cargo (fallback)
-        navigation.replace('Home');
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
       }
 
     } catch (error) {
@@ -207,11 +175,7 @@ export default function LoginScreen({ navigation }) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.card}>
-<<<<<<< HEAD
           <Text style={styles.title}>Bienvenido Operador</Text>
-=======
-          <Text style={styles.title}>Bienvenido</Text>
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
           <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
 
           <View style={styles.formGroup}>
@@ -222,13 +186,10 @@ export default function LoginScreen({ navigation }) {
               value={form.usuario}
               onChangeText={(text) => handleChange('usuario', text)}
               autoCapitalize="none"
-<<<<<<< HEAD
               autoCorrect={false}
               spellCheck={false}
               autoComplete="off"
               textContentType="none"
-=======
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
               editable={!loading}
             />
             {errors.usuario && <Text style={styles.errorText}>{errors.usuario}</Text>}
@@ -242,14 +203,11 @@ export default function LoginScreen({ navigation }) {
               secureTextEntry
               value={form.password}
               onChangeText={(text) => handleChange('password', text)}
-<<<<<<< HEAD
               autoCapitalize="none"
               autoCorrect={false}
               spellCheck={false}
               autoComplete="off"
               textContentType="password"
-=======
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
               editable={!loading}
             />
             {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}

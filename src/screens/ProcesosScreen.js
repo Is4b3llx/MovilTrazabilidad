@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal, ScrollView, Image, StyleSheet, RefreshControl, TextInput, Alert } from 'react-native';
 
-<<<<<<< HEAD
 const API = "http://10.26.13.160:3000/api/procesos";
 const API_MAQUINAS = "http://10.26.13.160:3000/api/maquinas";
-=======
-const API = "http://192.168.0.20:3000/api/procesos";
-const API_MAQUINAS = "http://192.168.0.20:3000/api/maquinas";
->>>>>>> 1c5ee86969699d15ad52d2c74b237a0c88c830c3
 
 export default function ProcesoScreen({ navigation }) {
   // Estados para la lista de procesos
